@@ -19,16 +19,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: get env
-        id: get-env
         run: |
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "::set-output name=env::${{ github.event.inputs.env }}"
+            echo "env=${{ github.event.inputs.env }}" >> $GITHUB_ENV
           elif [ "${{ github.event_name }}" == "repository_dispatch" ]; then
-            echo "::set-output name=env::${{ github.event.client_payload.env }}"
+            echo "env=${{ github.event.client_payload.env }}" >> $GITHUB_ENV
           fi
       - name: output env
         run: |
-          echo 'Your choice is ${{ steps.get-env.outputs.env }}.'
+          echo 'Your choice is ${{ env.env }}.'
       - env:
           MESSAGE: ${{ github.event.client_payload.message }}
         run: echo $MESSAGE
