@@ -1,6 +1,15 @@
 name: GHA subワークフロー
 
 on:
+  workflow_dispatch:
+    inputs:
+      env:
+        description: "環境を選んでください。"
+        type: choice
+        options:
+          - prd
+          - stg
+          - dev
   repository_dispatch:
     types: [test_result]
 
@@ -9,6 +18,17 @@ jobs:
     if: ${{ !github.event.client_payload.passed }}
     runs-on: ubuntu-latest
     steps:
+      - name: get env
+        id: get-env
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "::set-output name=env::${{ github.event.inputs.env }}"
+          elif [ "${{ github.event_name }}" == "repository_dispatch" ]; then
+            echo "::set-output name=env::${{ github.event.client_payload.env }}"
+          fi
+      - name: output env
+        run: |
+          echo 'Your choice is ${{ steps.get-env.outputs.env }}.'
       - env:
           MESSAGE: ${{ github.event.client_payload.message }}
         run: echo $MESSAGE
